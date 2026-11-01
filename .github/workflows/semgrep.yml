@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Semgrep
-        run: semgrep scan --config auto --sarif --output=semgrep.sarif --error
+        run: semgrep scan --config auto --config .semgrep/rules.yml --sarif --output=semgrep.sarif --error
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
