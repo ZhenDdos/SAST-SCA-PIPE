@@ -1,0 +1,14 @@
+{
+  "name": "pipeline-playground",
+  "private": true,
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace api",
+    "dev:web": "npm run dev --workspace web",
+    "test": "npm run test --workspace api",
+    "build": "npm run build --workspace web"
+  }
+}
