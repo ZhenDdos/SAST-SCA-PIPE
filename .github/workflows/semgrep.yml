@@ -1,0 +1,33 @@
+name: Semgrep SAST
+
+on:
+  pull_request: {}
+  workflow_dispatch: {}
+  push:
+    branches: ["main", "master", "develop"]
+  schedule:
+    - cron: '20 17 * * *'  # Ежедневный скан (время можно изменить)
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  semgrep:
+    name: semgrep/scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    if: (github.actor != 'dependabot[bot]')  # Пропускаем PR от dependabot
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: semgrep scan --config auto --config .semgrep/rules.yml --sarif --output=semgrep.sarif --error
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+        if: always() && hashFiles('semgrep.sarif') != ''

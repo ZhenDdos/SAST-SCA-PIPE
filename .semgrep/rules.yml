@@ -1,0 +1,16 @@
+rules:
+  - id: react-dangerously-set-inner-html
+    languages:
+      - javascript
+      - typescript
+    severity: ERROR
+    message: >-
+      Avoid dangerouslySetInnerHTML for user-controlled content; render the value
+      as text or sanitize it with a trusted HTML sanitizer.
+    metadata:
+      category: security
+      cwe: "CWE-79"
+      technology:
+        - react
+    pattern: |
+      <$TAG ... dangerouslySetInnerHTML={{ __html: $HTML }} ... />
