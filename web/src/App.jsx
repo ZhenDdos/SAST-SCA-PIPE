@@ -35,7 +35,9 @@ export default function App() {
     setTasks([]);
     setError("");
     try {
-      setTasks(await request(`/api/tasks?userId=${encodeURIComponent(userId)}`));
+      setTasks(
+        await request(`/api/tasks?userId=${encodeURIComponent(userId)}`),
+      );
       setError("");
     } catch (err) {
       setError(err.message);
@@ -51,16 +53,22 @@ export default function App() {
         setUser(result.user);
         if (result.user) {
           const requestedBoardId = boardIdFromPath();
-          const targetId = result.user.role === "admin" && requestedBoardId
-            ? requestedBoardId
-            : result.user.id;
-          if (result.user.role !== "admin" && requestedBoardId && requestedBoardId !== result.user.id) {
+          const targetId =
+            result.user.role === "admin" && requestedBoardId
+              ? requestedBoardId
+              : result.user.id;
+          if (
+            result.user.role !== "admin" &&
+            requestedBoardId &&
+            requestedBoardId !== result.user.id
+          ) {
             window.history.replaceState({}, "", `/users/${result.user.id}`);
           } else if (!requestedBoardId) {
             window.history.replaceState({}, "", `/users/${result.user.id}`);
           }
           setBoardUserId(targetId);
-          if (result.user.role === "admin") setClients(await request("/api/users"));
+          if (result.user.role === "admin")
+            setClients(await request("/api/users"));
           await loadTasks(targetId);
         }
       } catch (err) {
@@ -77,10 +85,13 @@ export default function App() {
     if (!user) return undefined;
     function handlePopState() {
       const requestedBoardId = boardIdFromPath();
-      const targetId = user.role === "admin" && requestedBoardId
-        ? requestedBoardId
-        : user.id;
-      if (user.role !== "admin" && requestedBoardId && requestedBoardId !== user.id) {
+      const targetId =
+        user.role === "admin" && requestedBoardId ? requestedBoardId : user.id;
+      if (
+        user.role !== "admin" &&
+        requestedBoardId &&
+        requestedBoardId !== user.id
+      ) {
         window.history.replaceState({}, "", `/users/${user.id}`);
       }
       if (!requestedBoardId && user.role === "admin") {
@@ -104,11 +115,14 @@ export default function App() {
     event.preventDefault();
     setAuthSubmitting(true);
     try {
-      const result = await request(`/api/auth/${authMode === "login" ? "login" : "register"}`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
+      const result = await request(
+        `/api/auth/${authMode === "login" ? "login" : "register"}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        },
+      );
       setUser(result.user);
       setBoardUserId(result.user.id);
       window.history.replaceState({}, "", `/users/${result.user.id}`);
@@ -144,7 +158,7 @@ export default function App() {
       const task = await request("/api/tasks", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ title }),
       });
       setTasks((current) => [task, ...current]);
       setTitle("");
@@ -159,9 +173,11 @@ export default function App() {
       const updated = await request(`/api/tasks/${task.id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ completed: !task.completed })
+        body: JSON.stringify({ completed: !task.completed }),
       });
-      setTasks((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      setTasks((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
       setError("");
     } catch (err) {
       setError(err.message);
@@ -189,20 +205,37 @@ export default function App() {
         </a>
         {user ? (
           <div className="account">
-            <span className="role-badge">{user.role === "admin" ? "Администратор" : "Пользователь"}</span>
+            <span className="role-badge">
+              {user.role === "admin" ? "Администратор" : "Пользователь"}
+            </span>
             <span className="account-email">{user.email}</span>
-            <button type="button" className="logout-button" onClick={logout}>Выйти</button>
+            <button type="button" className="logout-button" onClick={logout}>
+              Выйти
+            </button>
           </div>
-        ) : <span className="environment"><span /> local environment</span>}
+        ) : (
+          <span className="environment">
+            <span /> local environment
+          </span>
+        )}
       </header>
 
       <section className="content">
-        {authLoading ? <p className="empty-state">Проверяем сессию…</p> : !user ? (
-          <section className="auth-card" aria-label={authMode === "login" ? "Вход" : "Регистрация"}>
+        {authLoading ? (
+          <p className="empty-state">Проверяем сессию…</p>
+        ) : !user ? (
+          <section
+            className="auth-card"
+            aria-label={authMode === "login" ? "Вход" : "Регистрация"}
+          >
             <p className="eyebrow">PIPELINE PLAYGROUND</p>
-            <h1>{authMode === "login" ? "С возвращением." : "Создать аккаунт."}</h1>
+            <h1>
+              {authMode === "login" ? "С возвращением." : "Создать аккаунт."}
+            </h1>
             <p className="intro">
-              {authMode === "login" ? "Войдите, чтобы открыть свои задачи." : "Зарегистрируйтесь, чтобы начать работу."}
+              {authMode === "login"
+                ? "Войдите, чтобы открыть свои задачи."
+                : "Зарегистрируйтесь, чтобы начать работу."}
             </p>
             <form className="auth-form" onSubmit={submitAuth}>
               <label htmlFor="auth-email">Электронная почта</label>
@@ -219,16 +252,26 @@ export default function App() {
               <input
                 id="auth-password"
                 type="password"
-                autoComplete={authMode === "login" ? "current-password" : "new-password"}
+                autoComplete={
+                  authMode === "login" ? "current-password" : "new-password"
+                }
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 minLength={5}
                 maxLength={128}
                 required
               />
-              {error && <p className="error" role="alert">{error}</p>}
+              {error && (
+                <p className="error" role="alert">
+                  {error}
+                </p>
+              )}
               <button type="submit" disabled={authSubmitting}>
-                {authSubmitting ? "Подождите…" : authMode === "login" ? "Войти" : "Зарегистрироваться"}
+                {authSubmitting
+                  ? "Подождите…"
+                  : authMode === "login"
+                    ? "Войти"
+                    : "Зарегистрироваться"}
               </button>
             </form>
             <button
@@ -239,16 +282,25 @@ export default function App() {
                 setError("");
               }}
             >
-              {authMode === "login" ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти"}
+              {authMode === "login"
+                ? "Нет аккаунта? Зарегистрироваться"
+                : "Уже есть аккаунт? Войти"}
             </button>
           </section>
         ) : (
           <>
             {user.role === "admin" && (
-              <nav className="board-navigation" aria-label="Доски пользователей">
+              <nav
+                className="board-navigation"
+                aria-label="Доски пользователей"
+              >
                 <button
                   type="button"
-                  className={boardUserId === user.id ? "board-link selected" : "board-link"}
+                  className={
+                    boardUserId === user.id
+                      ? "board-link selected"
+                      : "board-link"
+                  }
                   onClick={() => selectBoard(user.id)}
                 >
                   Моя доска <span>#{user.id}</span>
@@ -259,27 +311,53 @@ export default function App() {
                     <button
                       type="button"
                       key={client.id}
-                      className={boardUserId === client.id ? "board-link selected" : "board-link"}
+                      className={
+                        boardUserId === client.id
+                          ? "board-link selected"
+                          : "board-link"
+                      }
                       onClick={() => selectBoard(client.id)}
                     >
                       #{client.id} <span>{client.email}</span>
                     </button>
                   ))}
-                  {clients.length === 0 && <span className="no-clients">Пока нет зарегистрированных клиентов</span>}
+                  {clients.length === 0 && (
+                    <span className="no-clients">
+                      Пока нет зарегистрированных клиентов
+                    </span>
+                  )}
                 </div>
               </nav>
             )}
             <p className="eyebrow">YOUR WORKSPACE</p>
-            <h1>{user.role === "admin" && boardUserId !== user.id ? <>Client #{boardUserId}<br /><span>task board.</span></> : <>Small steps,<br /><span>real progress.</span></>}</h1>
+            <h1>
+              {user.role === "admin" && boardUserId !== user.id ? (
+                <>
+                  Client #{boardUserId}
+                  <br />
+                  <span>task board.</span>
+                </>
+              ) : (
+                <>
+                  Small steps,
+                  <br />
+                  <span>real progress.</span>
+                </>
+              )}
+            </h1>
             <p className="intro">
               {user.role === "admin" && boardUserId !== user.id
                 ? `Tasks for ${clients.find((client) => client.id === boardUserId)?.email ?? `user #${boardUserId}`}.`
-                : user.role === "admin" ? `Your administrator board · #${user.id}` : `Your personal board · #${user.id}`}
+                : user.role === "admin"
+                  ? `Your administrator board · #${user.id}`
+                  : `Your personal board · #${user.id}`}
             </p>
 
             {boardUserId === user.id && (
               <form className="task-form" onSubmit={addTask}>
-                <label className="visually-hidden" htmlFor="task-title">New task</label>
+                <label className="visually-hidden" htmlFor="task-title">
+                  New task
+                </label>
                 <input
                   id="task-title"
                   value={title}
@@ -287,29 +365,42 @@ export default function App() {
                   placeholder="What needs to get done?"
                   maxLength={200}
                 />
-                <button type="submit" disabled={!title.trim()}>Add task <span aria-hidden="true">+</span></button>
+                <button type="submit" disabled={!title.trim()}>
+                  Add task <span aria-hidden="true">+</span>
+                </button>
               </form>
             )}
 
-            {error && <p className="error" role="alert">{error}</p>}
+            {error && (
+              <p className="error" role="alert">
+                {error}
+              </p>
+            )}
 
             <section className="task-card" aria-label="Task list">
               <div className="list-heading">
                 <h2>Tasks</h2>
-                <span>{completedCount} of {tasks.length} done</span>
+                <span>
+                  {completedCount} of {tasks.length} done
+                </span>
               </div>
               {loading ? (
                 <p className="empty-state">Loading your tasks…</p>
               ) : tasks.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-icon" aria-hidden="true">✳</span>
+                  <span className="empty-icon" aria-hidden="true">
+                    ✳
+                  </span>
                   <strong>Your list is clear.</strong>
                   <span>Add a task to get started.</span>
                 </div>
               ) : (
                 <ul className="task-list">
                   {tasks.map((task) => (
-                    <li className={task.completed ? "task completed" : "task"} key={task.id}>
+                    <li
+                      className={task.completed ? "task completed" : "task"}
+                      key={task.id}
+                    >
                       <label>
                         <input
                           type="checkbox"
@@ -317,20 +408,27 @@ export default function App() {
                           onChange={() => toggleTask(task)}
                         />
                         <span className="checkmark" aria-hidden="true" />
-                        <span className="task-title">{task.title}</span>
+                        <span
+                          className="task-title"
+                          dangerouslySetInnerHTML={{ __html: task.title }}
+                        />
                       </label>
                       <button
                         className="remove-button"
                         type="button"
                         aria-label={`Delete ${task.title}`}
                         onClick={() => removeTask(task.id)}
-                      >×</button>
+                      >
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
             </section>
-            <p className="footer-note">Built for focused work. One task at a time.</p>
+            <p className="footer-note">
+              Built for focused work. One task at a time.
+            </p>
           </>
         )}
       </section>
